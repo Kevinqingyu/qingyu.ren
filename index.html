@@ -1,163 +1,780 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的个人介绍</title>
+    <title>qingyu@terminal:~$ whoami</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #00ff41;
+            font-family: 'Courier New', 'Consolas', monospace;
+            overflow-x: hidden;
         }
-        .card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        /* Matrix 雨效果背景 */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.15;
         }
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
         }
-        .glow {
-            text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff, 0 0 30px #00f3ff;
+
+        /* 终端导航栏 */
+        .terminal-nav {
+            background: rgba(10, 14, 39, 0.95);
+            border-bottom: 2px solid #00ff41;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
         }
-        .terminal {
-            background: #1e1e1e;
-            border-radius: 8px;
+
+        .terminal-prompt {
+            color: #00ff41;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        .nav-links a {
+            color: #00ff41;
+            text-decoration: none;
+            margin-left: 2rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        .nav-links a::before {
+            content: '> ';
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover::before {
+            opacity: 1;
+        }
+
+        /* 闪烁光标 */
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: #00ff41;
+            animation: blink 1s infinite;
+            margin-left: 5px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* 终端窗口 */
+        .terminal-window {
+            background: rgba(15, 20, 40, 0.95);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
             padding: 20px;
-            font-family: 'Courier New', monospace;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            margin: 2rem auto;
+            max-width: 900px;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.5), inset 0 0 20px rgba(0, 255, 65, 0.1);
+            position: relative;
         }
+
         .terminal-header {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #00ff41;
         }
+
         .terminal-button {
             width: 12px;
             height: 12px;
             border-radius: 50%;
             margin-right: 8px;
+            box-shadow: 0 0 5px currentColor;
         }
+
         .terminal-button.red { background-color: #ff5f56; }
         .terminal-button.yellow { background-color: #ffbd2e; }
         .terminal-button.green { background-color: #27c93f; }
-        .terminal-content {
-            line-height: 1.6;
+
+        .terminal-title {
+            margin-left: 10px;
+            color: #00ff41;
+            font-size: 0.9rem;
         }
-        .terminal-content span.command { color: #50fa7b; }
-        .terminal-content span.output { color: #f8f8f2; }
+
+        .terminal-line {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .prompt-symbol {
+            color: #00ff41;
+            text-shadow: 0 0 5px #00ff41;
+        }
+
+        .command {
+            color: #00d4ff;
+            text-shadow: 0 0 5px #00d4ff;
+        }
+
+        .output {
+            color: #ffffff;
+            margin-left: 20px;
+        }
+
+        .error {
+            color: #ff5f56;
+        }
+
+        .success {
+            color: #27c93f;
+        }
+
+        /* 技能进度条 */
+        .skill-bar {
+            background: rgba(0, 255, 65, 0.1);
+            height: 25px;
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .skill-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff41, #00d4ff);
+            box-shadow: 0 0 10px #00ff41;
+            transition: width 2s ease;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            color: #0a0e27;
+            font-weight: bold;
+        }
+
+        /* 项目卡片 */
+        .project-card {
+            background: rgba(15, 20, 40, 0.9);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ff41, #00d4ff, #00ff41);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 10px;
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+            animation: rotate-border 3s linear infinite;
+        }
+
+        @keyframes rotate-border {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 255, 65, 0.4);
+        }
+
+        /* 交互式终端 */
+        .interactive-terminal {
+            background: rgba(10, 14, 39, 0.98);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 2rem auto;
+            max-width: 900px;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.5);
+        }
+
+        .terminal-output {
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+        }
+
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            outline: none;
+            padding: 5px;
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 14, 39, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff41;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #00ff41;
+        }
+
+        /* 标签样式 */
+        .tech-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            margin: 5px;
+            border: 1px solid #00ff41;
+            border-radius: 20px;
+            color: #00ff41;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .tech-tag:hover {
+            background: #00ff41;
+            color: #0a0e27;
+            box-shadow: 0 0 15px #00ff41;
+        }
+
+        /* ASCII Art */
+        .ascii-art {
+            color: #00ff41;
+            font-size: 0.7rem;
+            line-height: 1.2;
+            text-shadow: 0 0 5px #00ff41;
+            white-space: pre;
+        }
+
+        /* 打字机效果 */
+        .typewriter {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end);
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        /* 扫描线效果 */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(0, 255, 65, 0.05) 50%,
+                transparent 100%
+            );
+            animation: scan 8s linear infinite;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .terminal-nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links a {
+                margin-left: 1rem;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
-    <!-- 导航栏 -->
-    <nav class="bg-black bg-opacity-30 py-4 px-6 flex justify-between items-center">
-        <div class="text-2xl font-bold glow">程序员小宇</div>
-        <div class="space-x-6">
-            <a href="#about" class="hover:text-blue-300 transition">关于我</a>
-            <a href="#skills" class="hover:text-blue-300 transition">技能</a>
-            <a href="#projects" class="hover:text-blue-300 transition">项目</a>
-            <a href="#contact" class="hover:text-blue-300 transition">联系</a>
-        </div>
-    </nav>
+<body>
+    <!-- Matrix 雨背景 -->
+    <canvas id="matrix-canvas"></canvas>
+    
+    <!-- 扫描线效果 -->
+    <div class="scanline"></div>
 
-    <!-- 主体内容 -->
-    <main class="flex-grow container mx-auto px-4 py-12">
-        <!-- 个人介绍 -->
-        <section id="about" class="mb-20 text-center">
-            <div class="max-w-3xl mx-auto">
-                <img src="https://picsum.photos/200/200?person" alt="程序员照片" class="rounded-full mx-auto mb-6 border-4 border-white shadow-xl">
-                <h1 class="text-4xl md:text-5xl font-bold mb-4 glow">你好，我是小宇</h1>
-                <p class="text-xl mb-6">全栈开发工程师 | 热爱技术与创新</p>
-                <div class="terminal max-w-2xl mx-auto text-left">
-                    <div class="terminal-header">
-                        <div class="terminal-button red"></div>
-                        <div class="terminal-button yellow"></div>
-                        <div class="terminal-button green"></div>
-                    </div>
-                    <div class="terminal-content">
-                        <p><span class="command">> About</span></p>
-                        <p class="output">Full Stack Developer & Open Source Enthusiast</p>
-                        <p class="mt-4"><span class="command">> cat about.txt</span></p>
-                        <p class="output">专注于后端开发与系统架构设计，拥有10年+项目经验。热爱开源，喜欢探索新技术。</p>
-                    </div>
-                </div>
+    <div class="content-wrapper">
+        <!-- 终端导航栏 -->
+        <nav class="terminal-nav">
+            <div class="terminal-prompt">
+                <span>qingyu@terminal:~$</span>
+                <span class="cursor"></span>
             </div>
-        </section>
-
-        <!-- 技能展示 -->
-        <section id="skills" class="mb-20">
-            <h2 class="text-3xl font-bold text-center mb-12 glow">我的技能</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                <div class="card bg-black bg-opacity-20 p-6 rounded-xl">
-                    <i class="fab fa-python text-4xl mb-4 text-blue-400"></i>
-                    <h3 class="text-xl font-semibold mb-2">后端开发</h3>
-                    <p>精通Ruby/Rails、Java/Spring，熟悉微服务架构与数据库设计</p>
-                </div>
-                <div class="card bg-black bg-opacity-20 p-6 rounded-xl">
-                    <i class="fab fa-react text-4xl mb-4 text-blue-400"></i>
-                    <h3 class="text-xl font-semibold mb-2">前端技术</h3>
-                    <p>熟练掌握React/Vue、HTML5/CSS3，构建响应式用户界面</p>
-                </div>
-                <div class="card bg-black bg-opacity-20 p-6 rounded-xl">
-                    <i class="fas fa-database text-4xl mb-4 text-blue-400"></i>
-                    <h3 class="text-xl font-semibold mb-2">数据库</h3>
-                    <p>MySQL、PostgreSQL、MongoDB，具备性能优化与高可用方案经验</p>
-                </div>
+            <div class="nav-links">
+                <a href="#about">./about</a>
+                <a href="#skills">./skills</a>
+                <a href="#projects">./projects</a>
+                <a href="#contact">./contact</a>
             </div>
-        </section>
+        </nav>
 
-        <!-- 项目展示 -->
-        <section id="projects" class="mb-20">
-            <h2 class="text-3xl font-bold text-center mb-12 glow">我的项目</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                <div class="card bg-black bg-opacity-20 rounded-xl overflow-hidden">
-                    <img src="https://www.fantuan.ca/static/04997bbda97851b01fd9075deed68b37/96446/about_pic6.jpg" alt="电商系统项目截图" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold mb-2">饭团外卖</h3>
-                        <p class="mb-4"></p>
-                        <div class="flex space-x-2">
-                            <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm">Spring Cloud</span>
-                            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm">Redis</span>
-                            <span class="bg-purple-500 text-white px-3 py-1 rounded-full text-sm">MySQL</span>
+        <main class="container mx-auto px-4 py-8">
+            <!-- 欢迎界面 -->
+            <section id="about" class="terminal-window">
+                <div class="terminal-header">
+                    <div class="terminal-button red"></div>
+                    <div class="terminal-button yellow"></div>
+                    <div class="terminal-button green"></div>
+                    <div class="terminal-title">qingyu@terminal: ~/about</div>
+                </div>
+                
+                <div class="ascii-art text-center mb-6">
+ ██████╗ ██╗███╗   ██╗ ██████╗██╗   ██╗██╗   ██╗
+██╔═══██╗██║████╗  ██║██╔════╝╚██╗ ██╔╝██║   ██║
+██║   ██║██║██╔██╗ ██║██║  ███╗╚████╔╝ ██║   ██║
+██║▄▄ ██║██║██║╚██╗██║██║   ██║ ╚██╔╝  ██║   ██║
+╚██████╔╝██║██║ ╚████║╚██████╔╝  ██║   ╚██████╔╝
+ ╚══▀▀═╝ ╚═╝╚═╝  ╚═══╝ ╚═════╝   ╚═╝    ╚═════╝
+                </div>
+
+                <div class="terminal-line">
+                    <span class="prompt-symbol">$</span>
+                    <span class="command"> whoami</span>
+                </div>
+                <div class="output">
+                    Full Stack Developer | System Architect | Open Source Enthusiast
+                </div>
+
+                <div class="terminal-line mt-4">
+                    <span class="prompt-symbol">$</span>
+                    <span class="command"> cat profile.json</span>
+                </div>
+                <div class="output">
+                    {<br>
+                    &nbsp;&nbsp;"name": "程序员小宇",<br>
+                    &nbsp;&nbsp;"role": "Senior Full Stack Developer",<br>
+                    &nbsp;&nbsp;"experience": "10+ years",<br>
+                    &nbsp;&nbsp;"passion": ["Backend Architecture", "System Design", "Open Source"],<br>
+                    &nbsp;&nbsp;"location": "Coding Anywhere",<br>
+                    &nbsp;&nbsp;"status": "while(alive) { code(); }"<br>
+                    }
+                </div>
+
+                <div class="terminal-line mt-4">
+                    <span class="prompt-symbol">$</span>
+                    <span class="command"> echo $MOTTO</span>
+                </div>
+                <div class="output success">
+                    "Code is poetry, bugs are just unexpected features."
+                </div>
+            </section>
+
+            <!-- 技能展示 -->
+            <section id="skills" class="terminal-window">
+                <div class="terminal-header">
+                    <div class="terminal-button red"></div>
+                    <div class="terminal-button yellow"></div>
+                    <div class="terminal-button green"></div>
+                    <div class="terminal-title">qingyu@terminal: ~/skills</div>
+                </div>
+
+                <div class="terminal-line">
+                    <span class="prompt-symbol">$</span>
+                    <span class="command"> ./analyze_skills.sh --verbose</span>
+                </div>
+
+                <div class="mt-6">
+                    <div class="terminal-line">
+                        <span class="output">[Backend Development]</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" style="width: 95%" data-skill="95">
+                            Ruby/Rails, Java/Spring ████████████████████ 95%
+                        </div>
+                    </div>
+
+                    <div class="terminal-line mt-4">
+                        <span class="output">[Frontend Development]</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" style="width: 88%" data-skill="88">
+                            React, Vue, TypeScript ████████████████░░░░ 88%
+                        </div>
+                    </div>
+
+                    <div class="terminal-line mt-4">
+                        <span class="output">[Database & Cache]</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" style="width: 92%" data-skill="92">
+                            MySQL, PostgreSQL, Redis ██████████████████░░ 92%
+                        </div>
+                    </div>
+
+                    <div class="terminal-line mt-4">
+                        <span class="output">[DevOps & Cloud]</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" style="width: 85%" data-skill="85">
+                            Docker, K8s, AWS, CI/CD ████████████████░░░░ 85%
+                        </div>
+                    </div>
+
+                    <div class="terminal-line mt-4">
+                        <span class="output">[System Architecture]</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" style="width: 90%" data-skill="90">
+                            Microservices, DDD, Event-Driven ██████████████████░░ 90%
                         </div>
                     </div>
                 </div>
-                <div class="card bg-black bg-opacity-20 rounded-xl overflow-hidden">
-                    <img src="https://picsum.photos/400/200?ai" alt="AI智能助手项目截图" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold mb-2">AI智能助手</h3>
-                        <p class="mb-4">集成NLP与机器学习的智能对话系统</p>
-                        <div class="flex space-x-2">
-                            <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm">Python</span>
-                            <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm">TensorFlow</span>
-                            <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm">Flask</span>
-                        </div>
+
+                <div class="terminal-line mt-6">
+                    <span class="success">✓ Analysis complete. All systems operational.</span>
+                </div>
+            </section>
+
+            <!-- 项目展示 -->
+            <section id="projects" class="terminal-window">
+                <div class="terminal-header">
+                    <div class="terminal-button red"></div>
+                    <div class="terminal-button yellow"></div>
+                    <div class="terminal-button green"></div>
+                    <div class="terminal-title">qingyu@terminal: ~/projects</div>
+                </div>
+
+                <div class="terminal-line">
+                    <span class="prompt-symbol">$</span>
+                    <span class="command"> ls -la ~/projects/</span>
+                </div>
+
+                <div class="project-card">
+                    <div class="terminal-line">
+                        <span class="command">📦 fantuan-delivery-system/</span>
+                    </div>
+                    <div class="output mt-2">
+                        大型外卖配送平台 - 微服务架构实践<br>
+                        处理百万级订单，支持实时配送追踪与智能调度
+                    </div>
+                    <div class="mt-3">
+                        <span class="tech-tag">Spring Cloud</span>
+                        <span class="tech-tag">Redis</span>
+                        <span class="tech-tag">MySQL</span>
+                        <span class="tech-tag">RabbitMQ</span>
+                        <span class="tech-tag">Elasticsearch</span>
+                    </div>
+                    <div class="terminal-line mt-3">
+                        <span class="success">✓ Status: Production | ⭐ Performance: Excellent</span>
                     </div>
                 </div>
-            </div>
-        </section>
-    </main>
 
-    <!-- 联系方式 -->
-    <footer id="contact" class="bg-black bg-opacity-30 py-8">
-        <div class="container mx-auto px-4 text-center">
-            <h3 class="text-2xl font-bold mb-4 glow">联系我</h3>
-            <div class="flex justify-center space-x-6 mb-6">
-                <a href="https://github.com" target="_blank" class="text-2xl hover:text-blue-300 transition">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="https://linkedin.com" target="_blank" class="text-2xl hover:text-blue-300 transition">
-                    <i class="fab fa-linkedin"></i>
-                </a>
-                <a href="mailto:994800477@qq.com" class="text-2xl hover:text-blue-300 transition">
-                    <i class="fas fa-envelope"></i>
-                </a>
-            </div>
-            <p>© 2026 程序员小宇. 保留所有权利.</p>
-        </div>
-    </footer>
+                <div class="project-card">
+                    <div class="terminal-line">
+                        <span class="command">🤖 ai-intelligent-assistant/</span>
+                    </div>
+                    <div class="output mt-2">
+                        AI智能对话系统 - NLP与机器学习应用<br>
+                        集成自然语言处理，提供智能问答与任务自动化
+                    </div>
+                    <div class="mt-3">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">TensorFlow</span>
+                        <span class="tech-tag">Flask</span>
+                        <span class="tech-tag">NLP</span>
+                        <span class="tech-tag">Docker</span>
+                    </div>
+                    <div class="terminal-line mt-3">
+                        <span class="success">✓ Status: Active Development | 🚀 Innovation: High</span>
+                    </div>
+                </div>
+
+                <div class="terminal-line mt-4">
+                    <span class="output">Total: 2 major projects | More on GitHub...</span>
+                </div>
+            </section>
+
+            <!-- 交互式终端 -->
+            <section class="interactive-terminal">
+                <div class="terminal-header">
+                    <div class="terminal-button red"></div>
+                    <div class="terminal-button yellow"></div>
+                    <div class="terminal-button green"></div>
+                    <div class="terminal-title">Interactive Terminal - Try typing: help, about, skills, contact</div>
+                </div>
+
+                <div class="terminal-output" id="terminal-output">
+                    <div class="terminal-line">
+                        <span class="success">Welcome to QingYu's Interactive Terminal v1.0</span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="output">Type 'help' to see available commands.</span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="output">─────────────────────────────────────────────</span>
+                    </div>
+                </div>
+
+                <div class="terminal-input-line">
+                    <span class="prompt-symbol">visitor@qingyu:~$</span>
+                    <input type="text" class="terminal-input" id="terminal-input" placeholder="输入命令..." autocomplete="off">
+                </div>
+            </section>
+
+            <!-- 联系方式 -->
+            <section id="contact" class="terminal-window">
+                <div class="terminal-header">
+                    <div class="terminal-button red"></div>
+                    <div class="terminal-button yellow"></div>
+                    <div class="terminal-button green"></div>
+                    <div class="terminal-title">qingyu@terminal: ~/contact</div>
+                </div>
+
+                <div class="terminal-line">
+                    <span class="prompt-symbol">$</span>
+                    <span class="command"> cat contact.txt</span>
+                </div>
+
+                <div class="output mt-4 text-center">
+                    <div class="text-2xl mb-4">📡 Establish Connection</div>
+                    <div class="flex justify-center space-x-8 my-6">
+                        <a href="https://github.com" target="_blank" class="text-3xl hover:scale-110 transition-transform" style="color: #00ff41;">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://linkedin.com" target="_blank" class="text-3xl hover:scale-110 transition-transform" style="color: #00ff41;">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="mailto:994800477@qq.com" class="text-3xl hover:scale-110 transition-transform" style="color: #00ff41;">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="terminal-line mt-6">
+                    <span class="prompt-symbol">$</span>
+                    <span class="command"> echo "Let's build something amazing together!"</span>
+                </div>
+                <div class="output success">
+                    Let's build something amazing together!
+                </div>
+
+                <div class="terminal-line mt-6 text-center">
+                    <span class="output">© 2026 QingYu | Powered by Coffee & Code</span>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Matrix 雨效果
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?/~`";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(10, 14, 39, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#00ff41';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = matrix[Math.floor(Math.random() * matrix.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(drawMatrix, 50);
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // 技能进度条动画
+        window.addEventListener('load', () => {
+            const skillBars = document.querySelectorAll('.skill-progress');
+            skillBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 500);
+            });
+        });
+
+        // 交互式终端
+        const terminalInput = document.getElementById('terminal-input');
+        const terminalOutput = document.getElementById('terminal-output');
+
+        const commands = {
+            help: `Available commands:
+  help     - Show this help message
+  about    - Display information about me
+  skills   - List my technical skills
+  projects - Show my projects
+  contact  - Get contact information
+  clear    - Clear terminal
+  whoami   - Display current user info
+  date     - Show current date and time
+  echo     - Echo back your message`,
+            
+            about: `Full Stack Developer with 10+ years of experience.
+Specialized in backend architecture, system design, and microservices.
+Passionate about open source and building scalable solutions.`,
+            
+            skills: `Technical Skills:
+• Backend: Ruby/Rails, Java/Spring, Node.js
+• Frontend: React, Vue, TypeScript
+• Database: MySQL, PostgreSQL, Redis, MongoDB
+• DevOps: Docker, Kubernetes, AWS, CI/CD
+• Architecture: Microservices, DDD, Event-Driven`,
+            
+            projects: `Major Projects:
+1. Fantuan Delivery System - Microservices-based food delivery platform
+2. AI Intelligent Assistant - NLP-powered chatbot system
+Visit my GitHub for more: https://github.com`,
+            
+            contact: `Contact Information:
+📧 Email: 994800477@qq.com
+🐙 GitHub: https://github.com
+💼 LinkedIn: https://linkedin.com
+Let's connect and build something amazing!`,
+            
+            whoami: `visitor@qingyu.ren
+You are currently browsing QingYu's terminal portfolio.
+Access Level: Guest | Permissions: Read-Only`,
+            
+            clear: 'CLEAR_TERMINAL'
+        };
+
+        terminalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const input = terminalInput.value.trim();
+                if (input) {
+                    addTerminalLine(`visitor@qingyu:~$ ${input}`, 'command');
+                    processCommand(input);
+                    terminalInput.value = '';
+                }
+            }
+        });
+
+        function addTerminalLine(text, type = 'output') {
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            
+            if (type === 'command') {
+                line.innerHTML = `<span class="prompt-symbol">${text}</span>`;
+            } else if (type === 'error') {
+                line.innerHTML = `<span class="error">${text}</span>`;
+            } else if (type === 'success') {
+                line.innerHTML = `<span class="success">${text}</span>`;
+            } else {
+                line.innerHTML = `<span class="output">${text}</span>`;
+            }
+            
+            terminalOutput.appendChild(line);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        function processCommand(input) {
+            const parts = input.split(' ');
+            const cmd = parts[0].toLowerCase();
+            const args = parts.slice(1).join(' ');
+
+            if (cmd === 'clear') {
+                terminalOutput.innerHTML = `
+                    <div class="terminal-line">
+                        <span class="success">Terminal cleared.</span>
+                    </div>
+                `;
+            } else if (cmd === 'echo') {
+                addTerminalLine(args || '');
+            } else if (cmd === 'date') {
+                addTerminalLine(new Date().toString());
+            } else if (commands[cmd]) {
+                const response = commands[cmd];
+                response.split('\n').forEach(line => {
+                    addTerminalLine(line);
+                });
+            } else {
+                addTerminalLine(`Command not found: ${cmd}`, 'error');
+                addTerminalLine(`Type 'help' to see available commands.`);
+            }
+        }
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
