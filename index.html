@@ -52,6 +52,30 @@
             color: #00ff41;
             font-size: 1.2rem;
             text-shadow: 0 0 10px #00ff41;
+            display: flex;
+            align-items: center;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .nav-terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            outline: none;
+            padding: 5px 10px;
+            margin-left: 10px;
+        }
+
+        .nav-terminal-input::placeholder {
+            color: rgba(0, 255, 65, 0.5);
+        }
+
+        .terminal-prompt .cursor {
+            margin-left: 5px;
         }
 
         .nav-links a {
@@ -358,7 +382,7 @@
         <nav class="terminal-nav">
             <div class="terminal-prompt">
                 <span>Aatrox@terminal:~$</span>
-                <span class="cursor"></span>
+                <input type="text" class="nav-terminal-input" id="nav-terminal-input" autocomplete="off">
             </div>
             <div class="nav-links">
                 <a href="#about">./about</a>
@@ -538,10 +562,6 @@
                         <span class="success">✓ Status: Production | 🎂 Visit: <a href="https://www.pantrysbest.com/" target="_blank" style="color: #00d4ff; text-decoration: underline;">pantrysbest.com</a></span>
                     </div>
                 </div>
-
-                <div class="terminal-line mt-4">
-                    <span class="output">Total: 2 major projects | More on GitHub...</span>
-                </div>
             </section>
 
             <!-- 交互式终端 -->
@@ -664,6 +684,64 @@
                 }, 500);
             });
         });
+
+        // 顶部导航栏命令框
+        const navTerminalInput = document.getElementById('nav-terminal-input');
+        
+        navTerminalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const input = navTerminalInput.value.trim().toLowerCase();
+                if (input) {
+                    handleNavCommand(input);
+                    navTerminalInput.value = '';
+                }
+            }
+        });
+
+        function handleNavCommand(cmd) {
+            const commandMap = {
+                'about': '#about',
+                'skills': '#skills',
+                'projects': '#projects',
+                'contact': '#contact',
+                'help': null
+            };
+
+            if (cmd === 'help') {
+                // 在下方终端显示帮助信息
+                const terminalOutput = document.getElementById('terminal-output');
+                if (terminalOutput) {
+                    addTerminalLine('visitor@Aatrox:~$ help', 'command');
+                    addTerminalLine('可用导航命令:');
+                    addTerminalLine('  about    - 关于我');
+                    addTerminalLine('  skills   - 技能展示');
+                    addTerminalLine('  projects - 项目经验');
+                    addTerminalLine('  contact  - 联系方式');
+                    addTerminalLine('  clear    - 清空输入');
+                    addTerminalLine('');
+                    addTerminalLine('更多命令请在下方交互式终端输入！', 'success');
+                    // 滚动到交互式终端
+                    document.querySelector('.interactive-terminal').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } else if (cmd === 'clear') {
+                navTerminalInput.value = '';
+            } else if (commandMap[cmd]) {
+                const target = document.querySelector(commandMap[cmd]);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            } else {
+                // 如果不是导航命令，在下方终端执行
+                const terminalOutput = document.getElementById('terminal-output');
+                const terminalInput = document.getElementById('terminal-input');
+                if (terminalOutput && terminalInput) {
+                    addTerminalLine(`visitor@Aatrox:~$ ${cmd}`, 'command');
+                    processCommand(cmd);
+                    // 滚动到交互式终端
+                    document.querySelector('.interactive-terminal').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
 
         // 交互式终端
         const terminalInput = document.getElementById('terminal-input');
