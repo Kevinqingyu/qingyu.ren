@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 1200px;
+            height: 630px;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a2332 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            color: #00ff41;
+        }
+        .container {
+            text-align: center;
+            padding: 60px;
+        }
+        .title {
+            font-size: 72px;
+            font-weight: bold;
+            text-shadow: 0 0 20px #00ff41;
+            margin-bottom: 30px;
+        }
+        .subtitle {
+            font-size: 36px;
+            color: #00d4ff;
+            text-shadow: 0 0 10px #00d4ff;
+            margin-bottom: 20px;
+        }
+        .description {
+            font-size: 28px;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        .terminal-prompt {
+            font-size: 32px;
+            margin-top: 40px;
+            color: #00ff41;
+        }
+        .cursor {
+            display: inline-block;
+            width: 20px;
+            height: 40px;
+            background: #00ff41;
+            animation: blink 1s infinite;
+            margin-left: 10px;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">AATROX</div>
+        <div class="subtitle">Senior Full Stack Developer</div>
+        <div class="description">
+            10+ Years Experience<br>
+            Backend Architecture | System Design | Microservices
+        </div>
+        <div class="terminal-prompt">
+            Aatrox@terminal:~$ <span class="cursor"></span>
+        </div>
+    </div>
+</body>
+</html>
