@@ -171,6 +171,8 @@
         .output {
             color: #ffffff;
             margin-left: 20px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .error {
@@ -202,6 +204,9 @@
             padding-left: 10px;
             color: #0a0e27;
             font-weight: bold;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         /* 项目卡片 */
@@ -366,6 +371,24 @@
             
             .nav-links a {
                 margin-left: 1rem;
+            }
+
+            .skill-progress {
+                font-size: 0.7rem;
+                padding-left: 5px;
+            }
+
+            .output {
+                margin-left: 10px;
+                font-size: 0.9rem;
+            }
+
+            .terminal-window {
+                padding: 15px;
+            }
+
+            .ascii-art {
+                font-size: 0.5rem;
             }
         }
     </style>
